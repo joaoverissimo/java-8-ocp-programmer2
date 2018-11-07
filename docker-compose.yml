@@ -1,0 +1,43 @@
+version: '2'
+services:
+  ocp-mysql:
+    image: mysql:5.7
+    container_name: ocp-mysql
+    networks:
+      static-network:
+        ipv4_address: 179.21.128.2
+    volumes:
+     - ./jdbc/mysql:/var/lib/mysql
+    command: mysqld --sql-mode=
+    environment:
+     - MYSQL_ROOT_PASSWORD=12345
+     - MYSQL_USER=user
+     - MYSQL_PASSWORD=12345
+    ports:
+     - "9090:3306"
+
+  ocp-phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: ocp-phpmyadmin
+    networks:
+      static-network:
+        ipv4_address: 179.21.128.3
+    environment:
+     - PMA_ARBITRARY=1
+     - PMA_HOST=179.21.128.2
+     - PMA_USER=root
+     - PMA_PASSWORD=12345
+    restart: always
+    ports:
+     - 8080:80
+    volumes:
+     - /sessions
+    links:
+     - ocp-mysql
+
+networks:
+  static-network:
+    ipam:
+      config:
+        - subnet: c5b54d3a2608179.21.0.0/16
+          ip_range: 179.28.5.0/24
